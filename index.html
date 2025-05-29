@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SLADOR</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 min-h-screen">
+  <!-- Halaman Login -->
+  <section id="loginPage" class="flex flex-col items-center justify-center min-h-screen px-4">
+    <div class="bg-white rounded-xl shadow-lg w-full max-w-md p-8">
+      <div class="flex justify-center mb-6">
+        <img src="https://szu.adventist.org/wp-content/uploads/2018/03/Education-Logo.png" alt="Logo Sekolah" class="h-20">
+      </div>
+      <h1 class="text-2xl font-bold text-center text-gray-800 mb-6">Cek Kelulusan SMP ADVENT DOYO BARU</h1>
+      <form id="loginForm">
+        <div class="mb-4">
+          <label class="block text-gray-700 mb-1">No Peserta Ujian</label>
+          <input type="text" id="noPeserta" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring" required>
+        </div>
+        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg">Lihat Hasil</button>
+      </form>
+      <p id="errorMsg" class="mt-4 text-red-600 text-sm text-center hidden">Nomor peserta tidak ditemukan. Periksa kembali input Anda.</p>
+    </div>
+  </section>
+
+  <!-- Halaman Hasil -->
+  <section id="resultPage" class="hidden min-h-screen flex flex-col items-center justify-center px-4 py-10">
+    <div class="bg-white shadow-2xl rounded-xl w-full max-w-2xl p-8">
+      <div class="flex justify-center mb-4">
+        <img src="https://szu.adventist.org/wp-content/uploads/2018/03/Education-Logo.png" alt="Logo Sekolah" class="h-16">
+      </div>
+      <h2 class="text-2xl font-semibold text-center text-gray-800 mb-6">Hasil Kelulusan</h2>
+      <div id="studentData" class="text-gray-800 text-base space-y-3"></div>
+      <div class="mt-8 text-center">
+        <button onclick="goBack()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded">Kembali</button>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const dummyData = [
+{
+  nama: "AGUSTO HERMAN TUROT",
+  nis: "2300186127",
+  nisn: "0091672247",
+  no_peserta: "2-25-25-02-0019-0001-8",
+  ttl: "JAYAPURA,19 Juli 2009",
+  status: "LULUS"
+},
+{
+  nama: "ALLAN PETRUS WINDEWANI",
+  nis: "3936",
+  nisn: "0091327723",
+  no_peserta: "2-25-25-02-0019-0002-7",
+  ttl: "Depapre,29 Maret 2009",
+  status: "LULUS"
+},
+{
+  nama: "APRILIYANI RAMANDEY",
+  nis: "3938",
+  nisn: "0108210343",
+  no_peserta: "2-25-25-02-0019-0003-6",
+  ttl: "Sentani,40289",
+  status: "LULUS"
+},
+{
+  nama: "AHAVA MIRACLE SAMODRO",
+  nis: "2400186121",
+  nisn: "0106989167",
+  no_peserta: "2-25-25-02-0019-0004-5",
+  ttl: "Biak,40442",
+  status: "LULUS"
+},
+{
+  nama: "ANTONETHA ADRIANA SIMOPIAREF",
+  nis: "4028",
+  nisn: "0108390490",
+  no_peserta: "2-25-25-02-0019-0005-4",
+  ttl: "Doyo Baru,15 Juni 2010",
+  status: "LULUS"
+},
+{
+  nama: "APRILIA SHERRA DISENVICA MANUHUTU",
+  nis: "2300168037",
+  nisn: "0093279120",
+  no_peserta: "2-25-25-02-0019-0006-3",
+  ttl: "Timika,39929",
+  status: "LULUS"
+},
+{
+  nama: "BELTZASAR JEFERSON KAWAY",
+  nis: "4030",
+  nisn: "0102721424",
+  no_peserta: "2-25-25-02-0019-0007-2",
+  ttl: "WAENA,19 Februari 2010",
+  status: "LULUS"
+},
+{
+  nama: "BRAM ANGKELOKLA KEPNO",
+  nis: "3939",
+  nisn: "0094306904",
+  no_peserta: "2-25-25-02-0019-0008-9",
+  ttl: "Wamena,8 Desember 2010",
+  status: "LULUS"
+},
+{
+  nama: "CLARA ANGELA GABRIELA TUNYANAN",
+  nis: "2300186031",
+  nisn: "0108677425",
+  no_peserta: "2-25-25-02-0019-0009-8",
+  ttl: "Sentani,16 Januari 2010",
+  status: "LULUS"
+},
+{
+  nama: "CRISTIAN BOSA",
+  nis: "2300186025",
+  nisn: "0095346935",
+  no_peserta: "2-25-25-02-0019-0010-7",
+  ttl: "PALOPO,40439",
+  status: "LULUS"
+},
+{
+  nama: "DEBBYE SELVIANA NASA",
+  nis: "3941",
+  nisn: "0106807626",
+  no_peserta: "2-25-25-02-0019-0011-6",
+  ttl: "DOYO BARU,23 Juni 2010",
+  status: "LULUS"
+},
+{
+  nama: "DONI AZGAD UZZIEL SIRINGON",
+  nis: "3942",
+  nisn: "3111872137",
+  no_peserta: "2-25-25-02-0019-0012-5",
+  ttl: "Angguruk,31 Mei 2011",
+  status: "LULUS"
+},
+{
+  nama: "FREDERIKA ANASTASYA HUBY",
+  nis: "2300186122",
+  nisn: "3094947632",
+  no_peserta: "2-25-25-02-0019-0013-4",
+  ttl: "JAYAPURA,12 Juni 2009",
+  status: "LULUS"
+},
+{
+  nama: "GABRIELA SERLITA IPUNGKAWA",
+  nis: "4001",
+  nisn: "0098489613",
+  no_peserta: "2-25-25-02-0019-0014-3",
+  ttl: "AMBORA,40078",
+  status: "TIDAK LULUS"
+},
+{
+  nama: "GREGORIANO NDORI WANGGE",
+  nis: "2300186123",
+  nisn: "0099098953",
+  no_peserta: "2-25-25-02-0019-0015-2",
+  ttl: "KURUPOKE,21 Juli 2009",
+  status: "LULUS"
+},
+{
+  nama: "GLEND ROBERT HENGKI SASARARI",
+  nis: "2300186141",
+  nisn: "3103275923",
+  no_peserta: "2-25-25-02-0019-0016-9",
+  ttl: "Abepura,7 Mei 2010",
+  status: "LULUS"
+},
+{
+  nama: "HANA MARSELLA SESERAY",
+  nis: "5014",
+  nisn: "0105128394",
+  no_peserta: "2-25-25-02-0019-0017-8",
+  ttl: "ABEPURA,24 Maret 2010",
+  status: "LULUS"
+},
+{
+  nama: "HENDRIKUS AYUB WOMSIWOR",
+  nis: "2400186126",
+  nisn: "0104288064",
+  no_peserta: "2-25-25-02-0019-0018-7",
+  ttl: "Sentani,24 Juni 2010",
+  status: "LULUS"
+},
+{
+  nama: "JULITA AGUSTINA TIERT",
+  nis: "2300186032",
+  nisn: "0093395617",
+  no_peserta: "2-25-25-02-0019-0019-6",
+  ttl: "DEMTA,3 Juni 2009",
+  status: "LULUS"
+},
+{
+  nama: "JULIAN MARIO KAWAY",
+  nis: "3949",
+  nisn: "0091321567",
+  no_peserta: "2-25-25-02-0019-0020-5",
+  ttl: "Bambar,25 Juli 2009",
+  status: "LULUS"
+},
+{
+  nama: "JUS YAYU MAHUZE",
+  nis: "5017",
+  nisn: "0099549669",
+  no_peserta: "2-25-25-02-0019-0021-4",
+  ttl: "Merauke,25 Juni 2009",
+  status: "LULUS"
+},
+{
+  nama: "KITPENEM FRANSISCO KLAYTEN BIDANA",
+  nis: "5016",
+  nisn: "3096482284",
+  no_peserta: "2-25-25-02-0019-0022-3",
+  ttl: "SENTANI,18 Desember 2009",
+  status: "LULUS"
+},
+{
+  nama: "KARTINI WELERUBUN",
+  nis: "4089",
+  nisn: "0105333757",
+  no_peserta: "2-25-25-02-0019-0023-2",
+  ttl: "Waturu,28 Mei 2010",
+  status: "LULUS"
+},
+{
+  nama: "MELISSA ESTHER CLAUDINE MANUFANDU",
+  nis: "23001860126",
+  nisn: "2109821456",
+  no_peserta: "2-25-25-02-0019-0024-9",
+  ttl: "ABEPURA,5 Mei 2010",
+  status: "LULUS"
+},
+{
+  nama: "MELVIN RAVANO SAWEN",
+  nis: "3952",
+  nisn: "0091518473",
+  no_peserta: "2-25-25-02-0019-0025-8",
+  ttl: "JAYAPURA,40070",
+  status: "LULUS"
+},
+{
+  nama: "MARIA LOUISHA TAMINGKON DUMUTU",
+  nis: "3951",
+  nisn: "0099462941",
+  no_peserta: "2-25-25-02-0019-0026-7",
+  ttl: "Mabilabol,20 Maret 2010",
+  status: "LULUS"
+},
+{
+  nama: "MEISSYE KEISSYA SUABEY",
+  nis: "2300186026",
+  nisn: "0094956302",
+  no_peserta: "2-25-25-02-0019-0027-6",
+  ttl: "Jakarta,40069",
+  status: "LULUS"
+},
+{
+  nama: "NINGSIH KENANGGALEM",
+  nis: "230018623",
+  nisn: "0102276531",
+  no_peserta: "2-25-25-02-0019-0028-5",
+  ttl: "JAYAPURA,40291",
+  status: "LULUS"
+},
+{
+  nama: "NELCE WELMINA MONIM",
+  nis: "2300186028",
+  nisn: "0098467826",
+  no_peserta: "2-25-25-02-0019-0029-4",
+  ttl: "Doyo baru,23 Oktober 2009",
+  status: "LULUS"
+},
+{
+  nama: "OLIVIA WANDIK",
+  nis: "3955",
+  nisn: "0107980475",
+  no_peserta: "2-25-25-02-0019-0030-3",
+  ttl: "HELAKSILI,13 Juli 2010",
+  status: "LULUS"
+},
+{
+  nama: "PAUL BERTH MARWERI",
+  nis: "3956",
+  nisn: "0099583153",
+  no_peserta: "2-25-25-02-0019-0031-2",
+  ttl: "Yowari,39761",
+  status: "LULUS"
+},
+{
+  nama: "RICHARDOYELKOTIPKI KUTBOT MOIWEND",
+  nis: "5018",
+  nisn: "0099481097",
+  no_peserta: "2-25-25-02-0019-0032-9",
+  ttl: "Oksibil,22 Oktober 2009",
+  status: "LULUS"
+},
+{
+  nama: "WENI REGINA YABOISEMBUT",
+  nis: "4054",
+  nisn: "3100439544",
+  no_peserta: "2-25-25-02-0019-0033-8",
+  ttl: "SENTANI,22 Oktober 2010",
+  status: "LULUS"
+},
+{
+  nama: "YOSEP DEMETOUW",
+  nis: "3961",
+  nisn: "0078481192",
+  no_peserta: "2-25-25-02-0019-0034-7",
+  ttl: "JAYAPURA,39410",
+  status: "LULUS"
+},
+{
+  nama: "YUSUF WAISIMON",
+  nis: "3962",
+  nisn: "0072657704",
+  no_peserta: "2-25-25-02-0019-0035-6",
+  ttl: "Sentani,25 Agustus 2007",
+  status: "LULUS"
+},
+{
+  nama: "YAKOP WENDA",
+  nis: "2300186030",
+  nisn: "3084576438",
+  no_peserta: "2-25-25-02-0019-0036-5",
+  ttl: "Papua,27 Juni 2008",
+  status: "LULUS"
+},
+{
+  nama: "ZHYERA ZEFANYA NYARO",
+  nis: "3963",
+  nisn: "3092488351",
+  no_peserta: "2-25-25-02-0019-0037-4",
+  ttl: "JAYAPURA,19 Oktober 2009",
+  status: "LULUS"
+},
+{
+  nama: "BEKLINTON KREUTHA",
+  nis: "3965",
+  nisn: "3100417923",
+  no_peserta: "2-25-25-02-0019-0038-3",
+  ttl: "DOYO BARU,40274",
+  status: "LULUS"
+},
+{
+  nama: "BRYCE HERMAN OCHA AGAKI",
+  nis: "2300186121",
+  nisn: "0101513632",
+  no_peserta: "2-25-25-02-0019-0039-2",
+  ttl: "TIMIKA,9 Agustus 2010",
+  status: "LULUS"
+},
+{
+  nama: "BAYU JONATHAN JUNIOR MASKATI",
+  nis: "3964",
+  nisn: "0096408040",
+  no_peserta: "2-25-25-02-0019-0040-9",
+  ttl: "Kupang,23 Juni 2009",
+  status: "LULUS"
+},
+{
+  nama: "CARLASIN LAUDISYA BUGIANGGE",
+  nis: "2300186126",
+  nisn: "0091682793",
+  no_peserta: "2-25-25-02-0019-0041-8",
+  ttl: "Jayapura,1 Oktober 2009",
+  status: "LULUS"
+},
+{
+  nama: "DESI YAHULI",
+  nis: "4032",
+  nisn: "0115106290",
+  no_peserta: "2-25-25-02-0019-0042-7",
+  ttl: "Yabi,1 Oktober 2010",
+  status: "LULUS"
+},
+{
+  nama: "FARIDA NUKUBOY",
+  nis: "3969",
+  nisn: "0091996847",
+  no_peserta: "2-25-25-02-0019-0043-6",
+  ttl: "DOYO BARU,30 Mei 2009",
+  status: "LULUS"
+},
+{
+  nama: "FAUZAN DZULKARNAEN MONY",
+  nis: "2400186128",
+  nisn: "0099390608",
+  no_peserta: "2-25-25-02-0019-0044-5",
+  ttl: "ABEPURA,1 Agustus 2009",
+  status: "LULUS"
+},
+{
+  nama: "FEBRY YANTI YOWARITA E. KOGOYA",
+  nis: "4035",
+  nisn: "0095689243",
+  no_peserta: "2-25-25-02-0019-0045-4",
+  ttl: "Sentani,12 Februari 2010",
+  status: "LULUS"
+},
+{
+  nama: "FEBRYAN ARIE KREUTHA",
+  nis: "4036",
+  nisn: "0102434014",
+  no_peserta: "2-25-25-02-0019-0046-3",
+  ttl: "Doyo Baru,1 Februari 2010",
+  status: "LULUS"
+},
+{
+  nama: "FELICIA MARISA SARWA",
+  nis: "3970",
+  nisn: "0108263783",
+  no_peserta: "2-25-25-02-0019-0047-2",
+  ttl: "Jayapura,13 Maret 2010",
+  status: "LULUS"
+},
+{
+  nama: "GREATLY NOVENDRICH DJARA",
+  nis: "2300186029",
+  nisn: "3090312698",
+  no_peserta: "2-25-25-02-0019-0048-9",
+  ttl: "Kupang,40128",
+  status: "LULUS"
+},
+{
+  nama: "HULDA WARU",
+  nis: "4037",
+  nisn: "0098950437",
+  no_peserta: "2-25-25-02-0019-0049-8",
+  ttl: "Doyo Baru,6 Oktober 2009",
+  status: "LULUS"
+},
+{
+  nama: "IKA FRANSINA YELEMAKEN",
+  nis: "3974",
+  nisn: "0102409842",
+  no_peserta: "2-25-25-02-0019-0050-7",
+  ttl: "WAMENA,1 Juni 2010",
+  status: "LULUS"
+},
+{
+  nama: "JOSE NATO RUMPAISUM",
+  nis: "3978",
+  nisn: "0095264286",
+  no_peserta: "2-25-25-02-0019-0051-6",
+  ttl: "MANOKWARI,39931",
+  status: "LULUS"
+},
+{
+  nama: "JULIA PUTRI PANGKATANA",
+  nis: "3980",
+  nisn: "3086947179",
+  no_peserta: "2-25-25-02-0019-0052-5",
+  ttl: "Doyo Baru,21 Juli 2009",
+  status: "LULUS"
+},
+{
+  nama: "JULLYAN SYLVESTER SCUTE DAVID PANGKATANA",
+  nis: "5011",
+  nisn: "0106198248",
+  no_peserta: "2-25-25-02-0019-0053-4",
+  ttl: "Jayapura,40448",
+  status: "LULUS"
+},
+{
+  nama: "KETHRON ENUMBI KOGOYA",
+  nis: "4039",
+  nisn: "0107199009",
+  no_peserta: "2-25-25-02-0019-0054-3",
+  ttl: "Jayapura,18 Februari 2011",
+  status: "LULUS"
+},
+{
+  nama: "KRISTIAN MORDEKHAI MANGGO",
+  nis: "4041",
+  nisn: "0102332167",
+  no_peserta: "2-25-25-02-0019-0055-2",
+  ttl: "Nabire,14 Februari 2010",
+  status: "LULUS"
+},
+{
+  nama: "LINTON TAPLO",
+  nis: "4087",
+  nisn: "3080366475",
+  no_peserta: "2-25-25-02-0019-0056-9",
+  ttl: "OKMA,25 Mei 2008",
+  status: "LULUS"
+},
+{
+  nama: "LITA IRENE RUMAYOMI",
+  nis: "3981",
+  nisn: "0091725153",
+  no_peserta: "2-25-25-02-0019-0057-8",
+  ttl: "Jayapura,3 Desember 2009",
+  status: "LULUS"
+},
+{
+  nama: "MARIA VICTORIA WAROMI",
+  nis: "4010",
+  nisn: "0109893780",
+  no_peserta: "2-25-25-02-0019-0058-7",
+  ttl: "JAYAPURA,16 Mei 2010",
+  status: "LULUS"
+},
+{
+  nama: "OLIVER HAROLD ONGGE",
+  nis: "3983",
+  nisn: "0087398967",
+  no_peserta: "2-25-25-02-0019-0059-6",
+  ttl: "Kampung Harapan,30 Oktober 2008",
+  status: "LULUS"
+},
+{
+  nama: "PELY WANDIK",
+  nis: "3984",
+  nisn: "0092294975",
+  no_peserta: "2-25-25-02-0019-0060-5",
+  ttl: "NUMBA,20 Juli 2009",
+  status: "LULUS"
+},
+{
+  nama: "PETRUS RONAL DAVID OHEE",
+  nis: "3985",
+  nisn: "3111391792",
+  no_peserta: "2-25-25-02-0019-0061-4",
+  ttl: "SENTANI,18 Oktober 2009",
+  status: "LULUS"
+},
+{
+  nama: "RIO ABRAHAM SANADI",
+  nis: "3957",
+  nisn: "0088825378",
+  no_peserta: "2-25-25-02-0019-0062-3",
+  ttl: "BIAK,20 Desember 2008",
+  status: "LULUS"
+},
+{
+  nama: "ROBERT A. O. MANDOWEN",
+  nis: "3989",
+  nisn: "0092676463",
+  no_peserta: "2-25-25-02-0019-0063-2",
+  ttl: "Jayapura,15 Juli 2009",
+  status: "LULUS"
+},
+{
+  nama: "ROLAND ERDILA MEHUE",
+  nis: "3990",
+  nisn: "0094397556",
+  no_peserta: "2-25-25-02-0019-0064-9",
+  ttl: "Doyo Baru,23 Agustus 2009",
+  status: "LULUS"
+},
+{
+  nama: "SAMANTHA ALMUNG",
+  nis: "3991",
+  nisn: "3107478486",
+  no_peserta: "2-25-25-02-0019-0065-8",
+  ttl: "OKMA,26 Oktober 2010",
+  status: "LULUS"
+},
+{
+  nama: "SLOVENIA CANTIKA FIRMANTO",
+  nis: "3992",
+  nisn: "0098280551",
+  no_peserta: "2-25-25-02-0019-0066-7",
+  ttl: "PATI,40059",
+  status: "LULUS"
+},
+{
+  nama: "SELMA ALEIDA RANY WENDA",
+  nis: "4050",
+  nisn: "0104454228",
+  no_peserta: "2-25-25-02-0019-0067-6",
+  ttl: "Abepura,40506",
+  status: "LULUS"
+},
+{
+  nama: "THERESA YOKBETH JHONATRIA MAKUBA",
+  nis: "4053",
+  nisn: "3109848466",
+  no_peserta: "2-25-25-02-0019-0068-5",
+  ttl: "ABEPURA,40297",
+  status: "LULUS"
+},
+{
+  nama: "VANESSA FEBIOLA MONIM",
+  nis: "2400186127",
+  nisn: "0105479214",
+  no_peserta: "2-25-25-02-0019-0069-4",
+  ttl: "Ifale,17 Februari 2010",
+  status: "LULUS"
+},
+{
+  nama: "GATINOVA YIKWA",
+  nis: "5015",
+  nisn: "3083334077",
+  no_peserta: "2-25-25-02-0019-0070-3",
+  ttl: "wamena,39775",
+  status: "LULUS"
+},
+{
+  nama: "AVERIA RIKA SANYI",
+  nis: "2300186075",
+  nisn: "3116613277",
+  no_peserta: "2-25-25-02-0019-0071-2",
+  ttl: "SENTANI,22 Juli 2011",
+  status: "LULUS"
+},
+{
+  nama: "ALFREDO PRASETYO KLAKIK",
+  nis: "2300186039",
+  nisn: "0116422352",
+  no_peserta: "2-25-25-02-0019-0072-9",
+  ttl: "Jayapura,40655",
+  status: "LULUS"
+},
+{
+  nama: "AMELIA IBO",
+  nis: "3996",
+  nisn: "2234568900",
+  no_peserta: "2-25-25-02-0019-0073-8",
+  ttl: "Yakonde,11 Juni 2009",
+  status: "TIDAK LULUS"
+},
+{
+  nama: "ANGGELY JASSMIN ANTUKALI",
+  nis: "2300186040",
+  nisn: "3100692583",
+  no_peserta: "2-25-25-02-0019-0074-7",
+  ttl: "Airmadidi,26 Desember 2010",
+  status: "LULUS"
+},
+{
+  nama: "DOLFINUS DANCE ZERGIO LOY ARONGGEAR",
+  nis: "2300186080",
+  nisn: "0112000263",
+  no_peserta: "2-25-25-02-0019-0075-6",
+  ttl: "Abepura,6 Februari 2011",
+  status: "LULUS"
+},
+{
+  nama: "ERIS BRAYAN GWIJANGGE",
+  nis: "2300186010",
+  nisn: "0112165452",
+  no_peserta: "2-25-25-02-0019-0076-5",
+  ttl: "JAYAPURA,26 Februari 2011",
+  status: "LULUS"
+},
+{
+  nama: "ESTER TRIFENA TAMPEMAWA",
+  nis: "2300186046",
+  nisn: "0119084712",
+  no_peserta: "2-25-25-02-0019-0077-4",
+  ttl: "Sentani,2 Mei 2011",
+  status: "LULUS"
+},
+{
+  nama: "FAREL KARAMOY",
+  nis: "2300186048",
+  nisn: "0105386766",
+  no_peserta: "2-25-25-02-0019-0078-3",
+  ttl: "Ranomerut,5 Juli 2010",
+  status: "LULUS"
+},
+{
+  nama: "FLORHENDSIA OKTAVIANI IMBIRI",
+  nis: "2300186138",
+  nisn: "0105908931",
+  no_peserta: "2-25-25-02-0019-0079-2",
+  ttl: "Jayapura,6 Oktober 2010",
+  status: "LULUS"
+},
+{
+  nama: "IMELDA LAURINA IMBIR",
+  nis: "2300186013",
+  nisn: "0129482494",
+  no_peserta: "2-25-25-02-0019-0080-9",
+  ttl: "Merauke,14 Maret 2011",
+  status: "LULUS"
+},
+{
+  nama: "INDAH TIARA PUTRI SINURAT",
+  nis: "2300186014",
+  nisn: "0111084979",
+  no_peserta: "2-25-25-02-0019-0081-8",
+  ttl: "WAMENA,3 Juli 2011",
+  status: "LULUS"
+},
+{
+  nama: "JERRY SAROI SAMANUI",
+  nis: "2300186016",
+  nisn: "9957967849",
+  no_peserta: "2-25-25-02-0019-0082-7",
+  ttl: "JAYAPURA,40816",
+  status: "LULUS"
+},
+{
+  nama: "JUNIOR JOHN AFASEDANYA",
+  nis: "2300186015",
+  nisn: "0116228316",
+  no_peserta: "2-25-25-02-0019-0083-6",
+  ttl: "JAYAPURA,1 Januari 2011",
+  status: "LULUS"
+},
+{
+  nama: "JACKLIN BARBARINA TOKORO",
+  nis: "2300186053",
+  nisn: "0118592811",
+  no_peserta: "2-25-25-02-0019-0084-5",
+  ttl: "Sentani,10 Juni 2011",
+  status: "LULUS"
+},
+{
+  nama: "JOENYA NAYA RHYLA TARANTEIN",
+  nis: "2300186089",
+  nisn: "0113545545",
+  no_peserta: "2-25-25-02-0019-0085-4",
+  ttl: "Jogjakarta,1 Juni 2011",
+  status: "LULUS"
+},
+{
+  nama: "JOSSUA ESSA SASARARI",
+  nis: "2300186090",
+  nisn: "0101297193",
+  no_peserta: "2-25-25-02-0019-0086-3",
+  ttl: "Timika,4 Juni 2010",
+  status: "LULUS"
+},
+{
+  nama: "KABAYAS KASUN KURNIA SIMBIAK",
+  nis: "2300186091",
+  nisn: "0102377774",
+  no_peserta: "2-25-25-02-0019-0087-2",
+  ttl: "Serang,3 Mei 2010",
+  status: "LULUS"
+},
+{
+  nama: "MARCHELA TABITHA WANDADAYA",
+  nis: "2300186058",
+  nisn: "0116358236",
+  no_peserta: "2-25-25-02-0019-0088-9",
+  ttl: "WAMENA,22 Juni 2011",
+  status: "LULUS"
+},
+{
+  nama: "MARYOLEN ROSINA REMATOBI",
+  nis: "2300186094",
+  nisn: "0104451662",
+  no_peserta: "2-25-25-02-0019-0089-8",
+  ttl: "JAYAPURA,27 Oktober 2010",
+  status: "LULUS"
+},
+{
+  nama: "MIRACLE YOSUA PONTONUWU",
+  nis: "2300186023",
+  nisn: "0124621450",
+  no_peserta: "2-25-25-02-0019-0090-7",
+  ttl: "SENTANI,2 Mei 2012",
+  status: "LULUS"
+},
+{
+  nama: "NETHANIAH NOEL JUSTINE RUMBIAK",
+  nis: "2300186061",
+  nisn: "0103680807",
+  no_peserta: "2-25-25-02-0019-0091-6",
+  ttl: "Sentani,40501",
+  status: "LULUS"
+},
+{
+  nama: "PRINCESS AQELLA SALIM MALAWAT SUEBU",
+  nis: "2300186097",
+  nisn: "0129992688",
+  no_peserta: "2-25-25-02-0019-0092-5",
+  ttl: "Jayapura,14 Januari 2012",
+  status: "LULUS"
+},
+{
+  nama: "QUEEN ESTHER MUMEK",
+  nis: "2300186065",
+  nisn: "0115636629",
+  no_peserta: "2-25-25-02-0019-0093-4",
+  ttl: "Manado,29 Mei 2011",
+  status: "LULUS"
+},
+{
+  nama: "REVAN APRILIO RUMAMBI",
+  nis: "2300186027",
+  nisn: "0112057794",
+  no_peserta: "2-25-25-02-0019-0094-3",
+  ttl: "Kolongan,40642",
+  status: "LULUS"
+},
+{
+  nama: "STEENLY YOEL WATTILETE",
+  nis: "2300186101",
+  nisn: "0118391817",
+  no_peserta: "2-25-25-02-0019-0095-2",
+  ttl: "AMBON,16 Januari 2011",
+  status: "LULUS"
+},
+{
+  nama: "STEFANUS IBO",
+  nis: "2300186068",
+  nisn: "0103492402",
+  no_peserta: "2-25-25-02-0019-0096-9",
+  ttl: "Waena,31 Agustus 2010",
+  status: "LULUS"
+},
+{
+  nama: "VRINSKA NUMBERI",
+  nis: "2300186036",
+  nisn: "0111227964",
+  no_peserta: "2-25-25-02-0019-0097-8",
+  ttl: "Sentani,22 Mei 2011",
+  status: "LULUS"
+},
+{
+  nama: "WELMINCE ANATASYA MARWERI",
+  nis: "2300186035",
+  nisn: "0097730559",
+  no_peserta: "2-25-25-02-0019-0098-7",
+  ttl: "Jayapura,40143",
+  status: "LULUS"
+},
+{
+  nama: "YOSAFAT GILBERD BUGIANGGE",
+  nis: "2300186110",
+  nisn: "0119419488",
+  no_peserta: "2-25-25-02-0019-0099-6",
+  ttl: "WAMENA,11 Maret 2011",
+  status: "LULUS"
+},
+{
+  nama: "YESCHIKA SALINTINA KOBAK",
+  nis: "2300186073",
+  nisn: "3105736578",
+  no_peserta: "2-25-25-02-0019-0100-5",
+  ttl: "Jayapura,9 Desember 2010",
+  status: "LULUS"
+},
+{
+  nama: "ADOLOF TIGABRE",
+  nis: "3994",
+  nisn: "3088355959",
+  no_peserta: "2-25-25-02-0019-0101-4",
+  ttl: "NAIRA,11 Mei 2008",
+  status: "LULUS"
+},
+{
+  nama: "BOAZ MEKSON PIGAI",
+  nis: "5012",
+  nisn: "0159949616",
+  no_peserta: "2-25-25-02-0019-0102-3",
+  ttl: "Jayapura,16 Mei 2010",
+  status: "LULUS"
+},
+{
+  nama: "CHARA KEZIA TEBAI",
+  nis: "4069",
+  nisn: "0092168846",
+  no_peserta: "2-25-25-02-0019-0103-2",
+  ttl: "Jayapura,40064",
+  status: "LULUS"
+},
+{
+  nama: "GENDIS F T BABINGGA",
+  nis: "4002",
+  nisn: "0102996378",
+  no_peserta: "2-25-25-02-0019-0104-9",
+  ttl: "WAMENA,5 Februari 2010",
+  status: "LULUS"
+},
+{
+  nama: "IZHAK FIRDAUS SAMBOM",
+  nis: "4005",
+  nisn: "0084779107",
+  no_peserta: "2-25-25-02-0019-0105-8",
+  ttl: "ELELIM,13 Mei 2008",
+  status: "LULUS"
+},
+{
+  nama: "JOSUA GIOVANY TARAUDU",
+  nis: "3948",
+  nisn: "0102031451",
+  no_peserta: "2-25-25-02-0019-0106-7",
+  ttl: "TIMIKA,40281",
+  status: "LULUS"
+},
+{
+  nama: "KARTINI DORKAS MANURI",
+  nis: "4008",
+  nisn: "0096262597",
+  no_peserta: "2-25-25-02-0019-0107-6",
+  ttl: "Doyo Baru,39924",
+  status: "LULUS"
+},
+{
+  nama: "KEVIN ORGENES TOKORO",
+  nis: "4040",
+  nisn: "0094702242",
+  no_peserta: "2-25-25-02-0019-0108-5",
+  ttl: "Waena,28 Oktober 2009",
+  status: "LULUS"
+},
+{
+  nama: "KIMA DELKA",
+  nis: "2300186133",
+  nisn: "3062016573",
+  no_peserta: "2-25-25-02-0019-0109-4",
+  ttl: "Tumolbil,25 Agustus 2006",
+  status: "LULUS"
+},
+{
+  nama: "MAIKEL WESLIN TAFOR",
+  nis: "4009",
+  nisn: "3090537936",
+  no_peserta: "2-25-25-02-0019-0110-3",
+  ttl: "Arso,40074",
+  status: "LULUS"
+},
+{
+  nama: "MARCO BEFIN RAVAEL WAICANG",
+  nis: "5009",
+  nisn: "0101119723",
+  no_peserta: "2-25-25-02-0019-0111-2",
+  ttl: "NABIRE,40272",
+  status: "LULUS"
+},
+{
+  nama: "MISSYEL EVELIN AYEMI",
+  nis: "4011",
+  nisn: "0109971633",
+  no_peserta: "2-25-25-02-0019-0112-9",
+  ttl: "JAYAPURA,6 Februari 2010",
+  status: "LULUS"
+},
+{
+  nama: "MERLIN PHILE SOUMILENA",
+  nis: "4045",
+  nisn: "0106823043",
+  no_peserta: "2-25-25-02-0019-0113-8",
+  ttl: "Jayapura,19 Juni 2010",
+  status: "LULUS"
+},
+{
+  nama: "PAULINA MILKA NUKUBOY",
+  nis: "4013",
+  nisn: "0093698521",
+  no_peserta: "2-25-25-02-0019-0114-7",
+  ttl: "JAYAPURA,40136",
+  status: "LULUS"
+},
+{
+  nama: "PRISQILIA LINCE SADA",
+  nis: "4047",
+  nisn: "3090847139",
+  no_peserta: "2-25-25-02-0019-0115-6",
+  ttl: "TIMIKA,17 Agustus 2009",
+  status: "LULUS"
+},
+{
+  nama: "PAULINA WUMANGGE",
+  nis: "4014",
+  nisn: "0097542698",
+  no_peserta: "2-25-25-02-0019-0116-5",
+  ttl: "wamena,19 Agustus 2009",
+  status: "LULUS"
+},
+{
+  nama: "RIBKA GIBAN",
+  nis: "4016",
+  nisn: "3096900665",
+  no_peserta: "2-25-25-02-0019-0117-4",
+  ttl: "GONU,15 Januari 2007",
+  status: "LULUS"
+},
+{
+  nama: "SWITI YANTI TOAM",
+  nis: "4052",
+  nisn: "3065037327",
+  no_peserta: "2-25-25-02-0019-0118-3",
+  ttl: "JAYAPURA,10 Agustus 2006",
+  status: "LULUS"
+},
+{
+  nama: "SUSANA MEILINDA IBO",
+  nis: "4020",
+  nisn: "0106420444",
+  no_peserta: "2-25-25-02-0019-0119-2",
+  ttl: "Doyo Lama,1 Mei 2010",
+  status: "LULUS"
+},
+{
+  nama: "VALENTINNE MEDLAMA",
+  nis: "5013",
+  nisn: "0105147441",
+  no_peserta: "2-25-25-02-0019-0120-9",
+  ttl: "Sentani,14 Februari 2010",
+  status: "LULUS"
+},
+{
+  nama: "WRYSKA ELISH WAGIMIN",
+  nis: "2300186142",
+  nisn: "0092697964",
+  no_peserta: "2-25-25-02-0019-0121-8",
+  ttl: "Manado,12 Oktober 2009",
+  status: "LULUS"
+},
+{
+  nama: "VERLI KOGOYA",
+  nis: "5010",
+  nisn: "3083383540",
+  no_peserta: "2-25-25-02-0019-0122-7",
+  ttl: "wamena,12 Desember 2008",
+  status: "LULUS"
+}
+];
+
+    const loginPage = document.getElementById('loginPage');
+    const resultPage = document.getElementById('resultPage');
+    const studentDataDiv = document.getElementById('studentData');
+    const errorMsg = document.getElementById('errorMsg');
+
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const noPeserta = document.getElementById('noPeserta').value.trim();
+      const siswa = dummyData.find(data => data.no_peserta === noPeserta);
+
+      if (siswa) {
+        errorMsg.classList.add('hidden');
+        studentDataDiv.innerHTML = `
+          <div class="bg-green-50 border-l-4 border-green-400 p-4 rounded">
+            <p><strong>Nama Lengkap:</strong> ${siswa.nama}</p>
+            <p><strong>No Peserta:</strong> ${siswa.no_peserta}</p>
+            <p><strong>No Induk:</strong> ${siswa.nis}</p>
+            <p><strong>NISN:</strong> ${siswa.nisn}</p>
+            <p><strong>Tempat, Tanggal Lahir:</strong> ${siswa.ttl}</p>
+            <p><strong>Status Kelulusan:</strong> <span class="font-bold text-${siswa.status === 'LULUS' ? 'green' : 'red'}-600">${siswa.status}</span></p>
+          </div>
+        `;
+        loginPage.classList.add('hidden');
+        resultPage.classList.remove('hidden');
+      } else {
+        errorMsg.classList.remove('hidden');
+      }
+    });
+
+    function goBack() {
+      document.getElementById('loginForm').reset();
+      errorMsg.classList.add('hidden');
+      loginPage.classList.remove('hidden');
+      resultPage.classList.add('hidden');
+    }
+  </script>
+</body>
+</html>
